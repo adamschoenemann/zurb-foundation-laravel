@@ -24,6 +24,8 @@ class FormBuilder extends \Illuminate\Html\FormBuilder
      */
     private function hasError($name = null)
     {
+        if($name == '')
+            return false;
         return $this->local_errors->has($name);
     }
 
@@ -54,7 +56,7 @@ class FormBuilder extends \Illuminate\Html\FormBuilder
       $tags['error'] = $this->getErrorTag($name);
       $is_checkable = in_array($type, ['checkbox', 'radio']);
       $id = $this->getIdAttribute($name, $options, $is_checkable);
-      
+
       return $this->renderWithLabel(implode(' ',$tags), $name, $id, $is_checkable);
     }
 
@@ -135,7 +137,7 @@ class FormBuilder extends \Illuminate\Html\FormBuilder
     {
         return ($this->hasError($name) ? '<span class="error">'.implode(' ', $this->getError($name)).'</span>' :'' );
     }
-    
+
     /**
      * Create a checkable input field (checkbox/radio).
      *
@@ -152,7 +154,7 @@ class FormBuilder extends \Illuminate\Html\FormBuilder
 
       return parent::checkable($type, $name, $value, $checked, $options);
     }
-    
+
     /**
      * Generates an unique ID for a checkable fields, if not already defined,
      * this is useful for having a "clickable" label for every checkbox or radio
@@ -168,12 +170,12 @@ class FormBuilder extends \Illuminate\Html\FormBuilder
       if ( !empty($attributes['id']) ) {
         return;
       }
-      
+
       switch ( $type ) {
         case 'checkbox':
           $id = $name.'-'.self::checkboxCounter($name);
           break;
-        
+
         case 'radio':
           $id = $name.'-'.self::radioCounter($name);
           break;
@@ -181,7 +183,7 @@ class FormBuilder extends \Illuminate\Html\FormBuilder
 
       $attributes['id'] = $id;
     }
-    
+
     /**
      * Returns the number of checboxes for a given group name
      *
@@ -193,10 +195,10 @@ class FormBuilder extends \Illuminate\Html\FormBuilder
       if ( !array_key_exists( $name, self::$checkbox_count ) ) {
         self::$checkbox_count[$name] = 0;
       }
-      
+
       return self::$checkbox_count[$name]++;
     }
-    
+
     /**
      * Returns the number of radios for a given group name
      *
@@ -208,10 +210,10 @@ class FormBuilder extends \Illuminate\Html\FormBuilder
       if ( !array_key_exists( $name, self::$radio_count ) ) {
         self::$radio_count[$name] = 0;
       }
-      
+
       return self::$radio_count[$name]++;
     }
-    
+
     /**
      * Get the ID attribute for a field name.
      *
@@ -225,11 +227,11 @@ class FormBuilder extends \Illuminate\Html\FormBuilder
         self::setCheckableAttributeID($checkable_type, $name, $options);
         return $options['id'];
       }
-      
+
       return parent::getIdAttribute($name, $options);
     }
-    
-    
+
+
     /**
      * Calling method **before** generating the item sets the desired label for
      * a form item. *This method is chainable.*
@@ -243,7 +245,7 @@ class FormBuilder extends \Illuminate\Html\FormBuilder
     {
       // Comatibility with the old implementation.
       $this->labels[] = $name;
-      
+
       $this->foundation_labels[$name] = [
         'value' => e($value),
         'options' => $options
@@ -251,7 +253,7 @@ class FormBuilder extends \Illuminate\Html\FormBuilder
 
       return $this;
     }
-    
+
     /**
      * Renders an element adding a wrapper label. As suggested Foundation 5:
      * [ http://foundation.zurb.com/docs/components/forms.html ]
@@ -260,7 +262,7 @@ class FormBuilder extends \Illuminate\Html\FormBuilder
     {
       if ( array_key_exists($name, $this->foundation_labels) ) {
         $label_data = $this->foundation_labels[$name];
-        
+
         $this->getErrorClass($name, $label_data['options']);
         $rendered_options = $this->html->attributes( $label_data['options'] );
         $label = $this->formatLabel($name, $label_data['value'] );
@@ -268,7 +270,7 @@ class FormBuilder extends \Illuminate\Html\FormBuilder
         if ($id == null) {
           $id = self::getIdAttribute($name, $label_data['options'], $checkable);
         }
-        
+
         if ( $checkable ) {
           return "<label for='{$id}' {$rendered_options}>{$html}&nbsp;{$label}</label>";
         } else {
